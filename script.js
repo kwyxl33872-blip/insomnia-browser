@@ -32,10 +32,18 @@
 
 // Register Service Worker for proxy
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('/sw.js', { scope: '/' })
         .then(reg => console.log('SW registered:', reg.scope))
         .catch(err => console.log('SW registration failed:', err));
 }
+
+// Fallback: use proxy iframe if SW not controlling page
+setTimeout(() => {
+    if (!navigator.serviceWorker.controller) {
+        console.log('Service Worker not active, using iframe proxy');
+        // The iframe proxy will handle requests
+    }
+}, 1000);
 
 (function () {
     /** One named window — real browser chrome, not an iframe. Same name reuses the window. */

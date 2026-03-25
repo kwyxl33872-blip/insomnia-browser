@@ -127,6 +127,11 @@ app.get("/", function (req, res) {
     res.sendFile(path.join(__dirname, "main.html"));
 });
 
+// Serve service worker
+app.get("/sw.js", function (req, res) {
+    res.sendFile(path.join(__dirname, "sw.js"));
+});
+
 app.use(express.static(path.join(__dirname)));
 
 app.listen(PORT, function () {
