@@ -1,0 +1,18 @@
+{
+  "name": "studio-browser-shell",
+  "version": "1.0.0",
+  "description": "npm run serve — local UI + Node proxy. npm run electron — desktop Chromium shell.",
+  "main": "server.js",
+  "scripts": {
+    "serve": "node server.js",
+    "start": "node server.js",
+    "electron": "electron ."
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0"
+  }
+}

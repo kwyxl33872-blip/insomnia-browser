@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template</title>
+    <link rel="stylesheet" href="css.css">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar" aria-label="Main navigation">
+            <div class="sidebar__brand"><span class="sidebar__brand-insomnia">Insomnia</span></div>
+            <nav class="tabs" role="tablist" aria-orientation="vertical">
+                <button type="button" class="tab is-active" role="tab" aria-selected="true" aria-controls="panel-home" id="tab-home" data-panel="home">Home</button>
+                <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="panel-work" id="tab-work" data-panel="work">Work</button>
+                <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="panel-about" id="tab-about" data-panel="about">About</button>
+                <button type="button" class="tab" role="tab" aria-selected="false" aria-controls="panel-contact" id="tab-contact" data-panel="contact">Contact</button>
+            </nav>
+            <p class="sidebar__foot">© 2025 - Joonsuh Choi</p>
+        </aside>
+
+        <main class="content">
+            <section class="panel is-visible panel--home" id="panel-home" role="tabpanel" aria-labelledby="tab-home">
+                <h1>Welcome</h1>
+                <p class="panel__lead">Best Proxy Website / Unblocker, GoGuardian Bypass.</p>
+
+                <div class="browser" id="browser-window" aria-label="Browser controller">
+                    <div class="browser__titlebar">
+                        <div class="browser__traffic">
+                            <button type="button" class="browser__led browser__led--red" id="traffic-close" title="Close all tabs" aria-label="Close all tabs"></button>
+                            <button type="button" class="browser__led browser__led--yellow" id="traffic-exit-fs" title="Exit fullscreen" aria-label="Exit fullscreen"></button>
+                            <button type="button" class="browser__led browser__led--green" id="traffic-fullscreen" title="Enter fullscreen" aria-label="Enter fullscreen"></button>
+                        </div>
+                        <span class="browser__title">Browser</span>
+                    </div>
+                    <div class="browser__tabbar">
+                        <div class="browser__tabstrip" id="browser-tabstrip" role="tablist" aria-label="Browser tabs"></div>
+                        <button type="button" class="browser-tab-new" id="browser-tab-new" title="New tab" aria-label="New tab">+</button>
+                    </div>
+                    <form class="browser__toolbar browser__toolbar--nav" id="nav-form" action="#" method="get">
+                        <div class="browser__nav" role="toolbar" aria-label="Navigation">
+                            <button type="button" class="browser__navbtn" id="nav-back" title="Back" aria-label="Back">&#8592;</button>
+                            <button type="button" class="browser__navbtn" id="nav-forward" title="Forward" aria-label="Forward">&#8594;</button>
+                            <button type="button" class="browser__navbtn" id="nav-refresh" title="Reload" aria-label="Reload">&#8635;</button>
+                        </div>
+                        <input class="browser__omnibar" type="text" name="url" id="omnibar" placeholder="Search or enter a URL…" autocomplete="off" spellcheck="false" autocapitalize="off" enterkeyhint="go">
+                        <button type="submit" class="browser__go" id="nav-go">Go</button>
+                        <button type="button" class="browser__go" id="devtools-btn" title="Toggle DevTools">DevTools</button>
+                    </form>
+                    <div class="browser__viewport" id="browser-viewport">
+                        <div class="browser__external-panel" id="browser-external-panel">
+                            <div class="browser__external-idle" id="browser-external-idle">
+                                <h1 class="insomnia-title">Insomnia</h1>
+                                <div class="insomnia-underline"></div>
+                                <div class="browser__search-box">
+                                    <input class="browser__search-input" type="text" id="search-box" placeholder="Search the web..." autocomplete="off">
+                                    <select class="browser__search-select" id="search-engine-select">
+                                        <option value="duckduckgo">DuckDuckGo</option>
+                                        <option value="google">Google</option>
+                                        <option value="brave">Brave</option>
+                                        <option value="bing">Bing</option>
+                                    </select>
+                                    <button type="button" class="browser__search-btn" id="search-btn">Search</button>
+                                </div>
+                            </div>
+                            <div class="browser__external-active" id="browser-external-active" hidden>
+                                <p class="browser__external-label">Active URL (opens in external window)</p>
+                                <a class="browser__external-url" id="browser-status-url" href="#" target="_blank" rel="noopener noreferrer"></a>
+                                <p class="browser__external-blocked" id="browser-popup-blocked" hidden>If nothing opened, your browser blocked the window — allow popups for this site, or tap the link.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="browser__author">Made by - Joonsuh Choi</p>
+                </div>
+            </section>
+            <section class="panel" id="panel-work" role="tabpanel" aria-labelledby="tab-work" hidden>
+                <h1>Work</h1>
+                <p>Placeholder for projects, case studies, or a gallery grid.</p>
+            </section>
+            <section class="panel" id="panel-about" role="tabpanel" aria-labelledby="tab-about" hidden>
+                <h1>About</h1>
+                <p>Placeholder for your story, team, or mission.</p>
+            </section>
+            <section class="panel" id="panel-contact" role="tabpanel" aria-labelledby="tab-contact" hidden>
+                <h1>Contact</h1>
+                <p>Placeholder for email, form, or social links.</p>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
