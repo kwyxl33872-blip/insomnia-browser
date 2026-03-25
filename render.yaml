@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: insomnia-browser
+    name: insomnia-proxy
     runtime: node
     buildCommand: npm install
     startCommand: npm start
