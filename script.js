@@ -33,8 +33,21 @@
 // Register Service Worker for proxy
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .then(reg => console.log('SW registered:', reg.scope))
+        .then(reg => {
+            console.log('SW registered:', reg.scope);
+            // Send message to SW once it's active
+            if (reg.active) {
+                reg.active.postMessage({ type: 'setBaseUrl', url: location.origin });
+            }
+        })
         .catch(err => console.log('SW registration failed:', err));
+    
+    // Listen for SW controlling the page
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ type: 'setBaseUrl', url: location.origin });
+        }
+    });
 }
 
 // Fallback: use proxy iframe if SW not controlling page
