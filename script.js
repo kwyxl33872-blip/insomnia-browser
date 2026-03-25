@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 (function () {
     const tabs = document.querySelectorAll(".tab");
     const panels = document.querySelectorAll(".panel");
