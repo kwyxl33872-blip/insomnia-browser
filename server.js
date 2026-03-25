@@ -1,19 +1,36 @@
 /**
- * Local dev proxy: fetches http(s) URLs server-side and rewrites links to /proxy?url=...
+ * Scramjet-style proxy implementation
+ * Rewrites URLs dynamically for seamless proxy experience
  */
-"use strict";
 
 const express = require("express");
 const path = require("path");
 const cheerio = require("cheerio");
+const crypto = require("crypto");
 
 const PORT = process.env.PORT || 3000;
 const PROXY_PATH = "/proxy";
+const ENCRYPTION_KEY = crypto.randomBytes(32).toString('hex'); // In production, use a fixed key
 
 const app = express();
 
-function toProxyUrl(u) {
-    return PROXY_PATH + "?url=" + encodeURIComponent(u);
+// URL encoding/decoding for obfuscation
+function encodeUrl(url) {
+    const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
+    let encoded = cipher.update(url, 'utf8', 'hex');
+    encoded += cipher.final('hex');
+    return encoded;
+}
+
+function decodeUrl(encoded) {
+    try {
+        const decipher = crypto.createDecipher('aes-256-cbc', ENCRYPTION_KEY);
+        let decoded = decipher.update(encoded, 'hex', 'utf8');
+        decoded += decipher.final('utf8');
+        return decoded;
+    } catch (e) {
+        return null;
+    }
 }
 
 function isBlockedTarget(urlStr) {
@@ -47,20 +64,20 @@ function rewriteHtml(html, pageUrl) {
     function rewriteAttr(sel, attr) {
         $(sel).each(function (_, el) {
             const v = $(el).attr(attr);
-            if (!v) {
-                return;
-            }
+            if (!v) return;
+            
             if (attr === "href" && (v.startsWith("#") || v.startsWith("javascript:") || v.startsWith("mailto:") || v.startsWith("tel:"))) {
                 return;
             }
+            
             const a = abs(v);
-            if (!a || !/^https?:\/\//i.test(a)) {
-                return;
-            }
-            $(el).attr(attr, toProxyUrl(a));
+            if (!a || !/^https?:\/\//i.test(a)) return;
+            
+            $(el).attr(attr, PROXY_PATH + "/" + encodeUrl(a));
         });
     }
 
+    // Rewrite all attributes that can contain URLs
     rewriteAttr('a[href]', "href");
     rewriteAttr('link[href]', "href");
     rewriteAttr('area[href]', "href");
@@ -75,33 +92,82 @@ function rewriteHtml(html, pageUrl) {
     rewriteAttr('form[action]', "action");
     rewriteAttr('object[data]', "data");
 
+    // Rewrite CSS URLs
+    $('style').each(function (_, el) {
+        const css = $(el).html();
+        const rewritten = css.replace(/url\(['"]?([^'")]+)['"]?\)/g, (match, url) => {
+            if (url.startsWith('data:') || url.startsWith('#')) return match;
+            const absUrl = abs(url);
+            if (!absUrl) return match;
+            return `url(${PROXY_PATH}/${encodeUrl(absUrl)})`;
+        });
+        $(el).html(rewritten);
+    });
+
+    // Add script for dynamic content rewriting
+    $('head').append(`
+        <script>
+            (function() {
+                // Rewrite dynamically added content
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1) { // Element node
+                                rewriteNode(node);
+                            }
+                        });
+                    });
+                });
+                
+                function rewriteNode(node) {
+                    // Rewrite attributes
+                    ['href', 'src', 'action', 'data'].forEach(function(attr) {
+                        if (node[attr] && node[attr].startsWith('http')) {
+                            node[attr] = '${PROXY_PATH}/' + btoa(node[attr]);
+                        }
+                    });
+                    
+                    // Rewrite child elements
+                    Array.from(node.querySelectorAll('*')).forEach(rewriteNode);
+                }
+                
+                observer.observe(document.body, { childList: true, subtree: true });
+                
+                // Rewrite existing content
+                rewriteNode(document.body);
+            })();
+        </script>
+    `);
+
     return $.html();
 }
 
-app.get(PROXY_PATH, async function (req, res) {
-    const target = req.query.url;
+// Main proxy route
+app.get([PROXY_PATH, PROXY_PATH + '/:encodedUrl'], async function (req, res) {
+    let target;
+    
+    if (req.params.encodedUrl) {
+        target = decodeUrl(req.params.encodedUrl);
+    } else {
+        target = req.query.url;
+    }
+    
     if (!target || typeof target !== "string") {
-        return res.status(400).type("text/plain").send("Missing url query");
+        return res.status(400).type("text/plain").send("Missing URL");
     }
-    var decoded;
-    try {
-        decoded = decodeURIComponent(target);
-    } catch (e) {
-        return res.status(400).type("text/plain").send("Bad url encoding");
-    }
-    if (isBlockedTarget(decoded)) {
+    
+    if (isBlockedTarget(target)) {
         return res.status(403).type("text/plain").send("Target not allowed");
     }
 
     try {
-        const r = await fetch(decoded, {
+        const r = await fetch(target, {
             redirect: "follow",
             headers: {
-                "User-Agent":
-                    req.headers["user-agent"] ||
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "User-Agent": req.headers["user-agent"] || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.9",
+                Referer: target,
             },
         });
 
@@ -110,30 +176,25 @@ app.get(PROXY_PATH, async function (req, res) {
 
         if (ct.includes("text/html")) {
             const html = buf.toString("utf8");
-            const out = rewriteHtml(html, decoded);
+            const out = rewriteHtml(html, target);
             res.type("html").send(out);
         } else {
-            if (ct) {
-                res.set("Content-Type", ct);
-            }
+            if (ct) res.set("Content-Type", ct);
             res.send(buf);
         }
     } catch (err) {
-        res.status(502).type("text/plain").send("Proxy error: " + (err && err.message ? err.message : String(err)));
+        res.status(502).type("text/plain").send("Proxy error: " + err.message);
     }
 });
 
+// Serve static files
+app.use(express.static(path.join(__dirname)));
+
+// Main route
 app.get("/", function (req, res) {
     res.sendFile(path.join(__dirname, "main.html"));
 });
 
-// Serve service worker
-app.get("/sw.js", function (req, res) {
-    res.sendFile(path.join(__dirname, "sw.js"));
-});
-
-app.use(express.static(path.join(__dirname)));
-
 app.listen(PORT, function () {
-    console.log("Server running on port " + PORT);
+    console.log("Scramjet-style proxy running on port " + PORT);
 });
