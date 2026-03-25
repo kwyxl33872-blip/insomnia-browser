@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser</title>
+    <link rel="stylesheet" href="browser-ui.css">
+</head>
+<body>
+    <div class="browser-container">
+        <!-- Browser Chrome -->
+        <div class="browser-chrome">
+            <div class="browser-toolbar">
+                <!-- Navigation Buttons -->
+                <div class="nav-buttons">
+                    <button id="back-btn" class="nav-btn" title="Back">←</button>
+                    <button id="forward-btn" class="nav-btn" title="Forward">→</button>
+                    <button id="refresh-btn" class="nav-btn" title="Refresh">↻</button>
+                    <button id="home-btn" class="nav-btn" title="Home">⌂</button>
+                </div>
+
+                <!-- Address Bar -->
+                <div class="address-bar-container">
+                    <input type="text" id="address-bar" class="address-bar" placeholder="Enter URL or search..." spellcheck="false">
+                    <button id="go-btn" class="go-btn">Go</button>
+                </div>
+
+                <!-- Settings -->
+                <div class="browser-actions">
+                    <button id="settings-btn" class="action-btn" title="Settings">⚙</button>
+                    <button id="menu-btn" class="action-btn" title="Menu">☰</button>
+                </div>
+            </div>
+
+            <!-- Tab Bar -->
+            <div class="tab-bar">
+                <div class="tab-strip" id="tab-strip">
+                    <div class="tab active" data-tab-id="1">
+                        <span class="tab-title">New Tab</span>
+                        <button class="tab-close">×</button>
+                    </div>
+                </div>
+                <button id="new-tab-btn" class="new-tab-btn">+</button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <div class="tab-content active" data-tab-id="1">
+                <webview id="webview-1" class="webview" src="about:blank" nodeintegration="false" websecurity="false"></webview>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span id="status-text">Ready</span>
+            <span id="url-display"></span>
+        </div>
+    </div>
+
+    <script src="browser-ui.js"></script>
+</body>
+</html>
