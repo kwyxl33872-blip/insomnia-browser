@@ -626,15 +626,16 @@ body {
 .browser__proxy-frame {
     display: none;
     width: 100%;
-    height: min(800px, 75vh);
-    min-height: min(600px, 65vh);
+    height: 550px;
+    min-height: 550px;
     border: 0;
-    background: #fff;
+    background: transparent;
 }
 
 .browser-viewport--embed .browser__proxy-frame {
     display: block;
 }
+
 
 .browser__external-panel {
     min-height: min(400px, 50vh);
@@ -1512,18 +1513,6 @@ body {
     height: 100% !important;
 }
 
-.browser__proxy-frame {
-    display: none;
-    width: 100%;
-    height: min(800px, 75vh);
-    min-height: min(600px, 65vh);
-    border: 0;
-    background: #fff;
-}
-
-.browser-viewport--embed .browser__proxy-frame {
-    display: block;
-}
 
 .browser__external-panel {
     min-height: min(400px, 50vh);

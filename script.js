@@ -30,6 +30,13 @@
     });
 })();
 
+// Register Service Worker for proxy
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('SW registered:', reg.scope))
+        .catch(err => console.log('SW registration failed:', err));
+}
+
 (function () {
     /** One named window — real browser chrome, not an iframe. Same name reuses the window. */
     var EXTERNAL_WINDOW_NAME = "studio-external-browser";
