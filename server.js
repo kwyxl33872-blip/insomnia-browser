@@ -16,18 +16,15 @@ const app = express();
 
 // URL encoding/decoding for obfuscation
 function encodeUrl(url) {
-    const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
-    let encoded = cipher.update(url, 'utf8', 'hex');
-    encoded += cipher.final('hex');
-    return encoded;
+    return Buffer.from(url).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 function decodeUrl(encoded) {
     try {
-        const decipher = crypto.createDecipher('aes-256-cbc', ENCRYPTION_KEY);
-        let decoded = decipher.update(encoded, 'hex', 'utf8');
-        decoded += decipher.final('utf8');
-        return decoded;
+        // Add padding back
+        const padded = encoded + '='.repeat((4 - encoded.length % 4) % 4);
+        const base64 = padded.replace(/-/g, '+').replace(/_/g, '/');
+        return Buffer.from(base64, 'base64').toString('utf8');
     } catch (e) {
         return null;
     }
