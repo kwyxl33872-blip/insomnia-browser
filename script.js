@@ -229,10 +229,7 @@
         }
     }
 
-    var useProxy =
-        typeof location !== "undefined" &&
-        location.protocol === "http:" &&
-        /^(127\.0\.0\.1|localhost)$/i.test(location.hostname || "");
+    var useProxy = !isElectron;
     var proxyFrame = null;
 
     function rewriteUrlForShell(url) {
@@ -242,7 +239,7 @@
         return location.origin + "/proxy?url=" + encodeURIComponent(url);
     }
 
-    if (useProxy && viewport && !isElectron) {
+    if (useProxy && viewport) {
         proxyFrame = document.createElement("iframe");
         proxyFrame.className = "browser__proxy-frame";
         proxyFrame.setAttribute("title", "Proxied page");
